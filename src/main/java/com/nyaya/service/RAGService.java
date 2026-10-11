@@ -214,7 +214,8 @@ public class RAGService {
                 and the Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS).
                 
                 Rules:
-                - Answer strictly using the statute extracts provided in the context below.
+                - Answer strictly and directly using the statute extracts provided in the context below.
+                - Keep your answer clear, concise, and structured with bullet points. Avoid filler text.
                 - Maintain conversational awareness of previous messages in this dialogue.
                 - Cite relevant sections using [BNS Section N] or [BNSS Section N].
                 - When comparing offences (e.g. culpable homicide vs murder, robbery vs dacoity), clearly distinguish their elements and cite each section.
@@ -258,8 +259,8 @@ public class RAGService {
                     .toList();
         }
 
-        // 4. Apply diversity selection across sections
-        return selectDiverseSections(merged, explicitSections, 7);
+        // 4. Apply diversity selection across sections (limit to 4 most relevant to minimize prompt latency)
+        return selectDiverseSections(merged, explicitSections, 4);
     }
 
     // Keyword helper to retrieve comparative sections for common contrast queries

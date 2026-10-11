@@ -30,6 +30,7 @@ spring:
         options:
           model: ${OLLAMA_CHAT_MODEL:llama3.2}
           temperature: 0.1
+          num-predict: 400
       embedding:
         options:
           model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}

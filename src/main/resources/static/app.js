@@ -144,7 +144,7 @@ function createAssistantMessagePlaceholder() {
             <div class="text-xs text-slate-500 flex items-center space-x-2.5">
                 <span class="font-semibold text-slate-900 font-display tracking-wide">Nyaya Legal AI</span>
                 <span class="inline-block h-1.5 w-1.5 rounded-full bg-amber-500 animate-ping"></span>
-                <span class="text-[11px] text-amber-700 font-mono">Retrieving BNS/BNSS statutory provisions...</span>
+                <span class="text-[11px] text-amber-700 font-mono progress-step">Searching 2,066 statutory chunks in pgvector...</span>
             </div>
             <div class="text-sm text-slate-700 leading-relaxed prose-legal answer-body">
                 <span class="inline-block animate-pulse text-slate-400">Synthesizing authoritative legal counsel from Gazette text...</span>
@@ -153,6 +153,17 @@ function createAssistantMessagePlaceholder() {
     `;
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
+
+    // Progressive status updates to keep user informed
+    setTimeout(() => {
+        const step = div.querySelector('.progress-step');
+        if (step) step.textContent = 'Matching sections & ranking statutory provisions...';
+    }, 2000);
+    setTimeout(() => {
+        const step = div.querySelector('.progress-step');
+        if (step) step.textContent = 'Synthesizing verified legal answer with Llama 3.2...';
+    }, 4000);
+
     return div;
 }
 
