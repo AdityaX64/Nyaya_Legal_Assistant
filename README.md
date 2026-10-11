@@ -122,16 +122,28 @@ Nyaya serves a clean, responsive single-page web app directly from Spring Boot (
 
 ---
 
-### Step 1: Start PostgreSQL with pgvector
+### Step 1: Configure Environment
+Copy the environment template:
+```bash
+# Linux / macOS
+cp .env.example .env
+
+# Windows PowerShell
+copy .env.example .env
+```
+
+---
+
+### Step 2: Start PostgreSQL with pgvector
 From the project root:
 ```bash
 docker compose up -d postgres
 ```
-This launches PostgreSQL with the `pgvector` extension mapped to host port `5433` (configured to prevent collisions with existing local PostgreSQL instances). All default credentials are preconfigured in `application.yml` and customizable via `.env` (see `.env.example`).
+This launches PostgreSQL with the `pgvector` extension mapped to host port `5433` (configured to prevent port collisions with existing local PostgreSQL instances). All credentials and ports are automatically loaded from `.env`.
 
 ---
 
-### Step 2: Pull the Open-Weight Ollama Models
+### Step 3: Pull the Open-Weight Ollama Models
 ```bash
 ollama pull nomic-embed-text
 ollama pull llama3.2
@@ -140,7 +152,7 @@ ollama pull llama3.2
 
 ---
 
-### Step 3: Run the Spring Boot Backend
+### Step 4: Run the Spring Boot Backend
 ```powershell
 # Windows
 .\mvnw.cmd spring-boot:run
@@ -153,7 +165,7 @@ Once started, open **<http://localhost:8080>** in your browser!
 
 ---
 
-### Step 4: Index the Source PDFs
+### Step 5: Index the Source PDFs
 You can index the official BNS and BNSS Gazette PDFs in either of two ways:
 
 * **Option A (One-Click via Web UI):**  
