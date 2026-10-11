@@ -62,6 +62,6 @@ public class DocumentIngestionService {
                 .reduce("", (left, right) -> left + " " + right).toUpperCase().replaceAll("[^A-Z]", "");
         if (firstPages.contains("NAGARIKSURAKSHASANHITA")) return "BNSS";
         if (firstPages.contains("BHARATIYANYAYASANHITA")) return "BNS";
-        return "BNS"; // default to BNS if primary topic
+        throw new IllegalArgumentException("Unsupported document. Only official Bharatiya Nyaya Sanhita (BNS) and Bharatiya Nagarik Suraksha Sanhita (BNSS) PDFs are permitted.");
     }
 }
