@@ -140,7 +140,7 @@ function createAssistantMessagePlaceholder() {
         <div class="h-8 w-8 rounded-xl bg-amber-50 border border-amber-200/90 flex items-center justify-center shrink-0 text-amber-700 mt-1 shadow-xs">
             <svg class="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path></svg>
         </div>
-        <div class="space-y-3.5 flex-1 bg-white border border-slate-200/90 p-5 rounded-2xl rounded-tl-sm shadow-xs">
+        <div class="ai-content-box space-y-3.5 flex-1 bg-white border border-slate-200/90 p-5 rounded-2xl rounded-tl-sm shadow-xs">
             <div class="text-xs text-slate-500 flex items-center space-x-2.5">
                 <span class="font-semibold text-slate-900 font-display tracking-wide">Nyaya Legal AI</span>
                 <span class="inline-block h-1.5 w-1.5 rounded-full bg-amber-500 animate-ping"></span>
@@ -208,7 +208,8 @@ function renderCompleteAnswer(wrapper, answerMarkdown, sources, latencyMs) {
 
         cardsHtml += `</div>`;
         sourcesDiv.innerHTML = cardsHtml;
-        wrapper.querySelector('.space-y-3.5').appendChild(sourcesDiv);
+        const targetBox = wrapper.querySelector('.ai-content-box') || wrapper;
+        targetBox.appendChild(sourcesDiv);
     }
 
     const container = document.getElementById('messagesContainer');
