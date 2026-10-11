@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f8fafc] text-slate-800">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nyaya — BNS & BNSS Legal Research AI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            serif: ['Merriweather', 'serif'],
+            display: ['Cinzel', 'serif']
+          },
+          colors: {
+            gold: {
+              50: '#fffdf5',
+              100: '#fef9e8',
+              200: '#fdf0c5',
+              300: '#fbe297',
+              400: '#f6cb56',
+              500: '#d4af37',
+              600: '#b89222',
+              700: '#947019',
+              800: '#7a5a1b',
+              900: '#67491b'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom aesthetic scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    .prose-legal p { margin-bottom: 0.85rem; line-height: 1.75; color: #334155; }
+    .prose-legal h1, .prose-legal h2, .prose-legal h3 { font-family: 'Cinzel', serif; font-weight: 600; color: #0f172a; margin-top: 1.2rem; margin-bottom: 0.6rem; letter-spacing: -0.01em; }
+    .prose-legal ul { list-style-type: disc; padding-left: 1.35rem; margin-bottom: 0.85rem; color: #475569; }
+    .prose-legal ol { list-style-type: decimal; padding-left: 1.35rem; margin-bottom: 0.85rem; color: #475569; }
+    .prose-legal strong { color: #0f172a; font-weight: 600; }
+    .prose-legal blockquote { border-left: 3px solid #d97706; background: #fffbeb; padding: 0.6rem 1rem; border-radius: 0 0.5rem 0.5rem 0; margin: 0.75rem 0; color: #78350f; font-style: italic; }
+    .prose-legal code { background: #f1f5f9; border: 1px solid #e2e8f0; padding: 0.15rem 0.4rem; border-radius: 0.375rem; color: #b45309; font-size: 0.85em; }
+
+    /* Ambient background canvas gradient */
+    .aesthetic-canvas {
+      background-color: #f8fafc;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(254, 243, 199, 0.45) 0px, transparent 40%),
+        radial-gradient(at 100% 0%, rgba(224, 242, 254, 0.45) 0px, transparent 40%),
+        radial-gradient(at 50% 100%, rgba(241, 245, 249, 0.8) 0px, transparent 50%);
+    }
+
+    .card-shadow {
+      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 1px 3px 0 rgba(15, 23, 42, 0.02);
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col font-sans overflow-hidden aesthetic-canvas text-slate-800">
+
+  <!-- TOP NAVIGATION HEADER -->
+  <header class="border-b border-slate-200/80 bg-white/85 backdrop-blur-md px-6 py-3.5 flex items-center justify-between z-20 shadow-xs">
+    <div class="flex items-center space-x-3.5">
+      <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 flex items-center justify-center shadow-md shadow-amber-500/20 text-slate-900">
+        <svg class="w-5 h-5 text-slate-900 stroke-[2.2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path>
+        </svg>
+      </div>
+      <div>
+        <div class="flex items-center space-x-2.5">
+          <h1 class="text-base font-bold tracking-tight text-slate-900 font-display">NYAYA</h1>
+          <span class="text-[11px] bg-amber-50 text-amber-800 font-semibold px-2.5 py-0.5 rounded-full border border-amber-200/90 tracking-wide">BNS & BNSS RAG</span>
+        </div>
+        <p class="text-[11px] text-slate-500 font-medium">Statutory Legal Research Assistant & Benchmark Pipeline</p>
+      </div>
+    </div>
+
+    <!-- STATUS & ACTIONS -->
+    <div class="flex items-center space-x-3">
+      <!-- Database Status Badge -->
+      <div id="statusBadge" class="flex items-center space-x-2 text-xs bg-white border border-slate-200/90 px-3 py-1.5 rounded-lg text-slate-700 shadow-xs">
+        <span class="h-2 w-2 rounded-full bg-amber-500 animate-pulse" id="statusDot"></span>
+        <span id="statusText" class="font-medium">Checking database...</span>
+      </div>
+
+      <!-- Action Buttons -->
+      <button onclick="openIngestModal()" class="text-xs bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 hover:border-amber-400 px-3 py-1.5 rounded-lg font-medium transition flex items-center space-x-1.5 shadow-xs">
+        <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+        </svg>
+        <span>Manage Corpus</span>
+      </button>
+
+      <button onclick="openEvalModal()" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/90 px-3 py-1.5 rounded-lg font-semibold transition flex items-center space-x-1.5 shadow-xs">
+        <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>Run Evals</span>
+      </button>
+
+      <a href="/swagger-ui.html" target="_blank" class="text-xs text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition" title="Open Swagger UI">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+        </svg>
+      </a>
+    </div>
+  </header>
+
+  <!-- MAIN CHAT CONTAINER -->
+  <main class="flex-1 flex overflow-hidden relative">
+
+    <!-- CHAT VIEWPORT -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden">
+      
+      <!-- MESSAGES SCROLL AREA -->
+      <div id="messagesContainer" class="flex-1 overflow-y-auto px-4 md:px-8 py-6 space-y-6">
+
+        <!-- WELCOME HERO STATE -->
+        <div id="welcomeState" class="max-w-3xl mx-auto my-6 text-center space-y-5">
+          <div class="inline-flex p-3.5 rounded-2xl bg-gradient-to-br from-amber-50 via-white to-amber-100/50 border border-amber-200/80 shadow-md">
+            <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+          </div>
+          <div class="space-y-1.5">
+            <h2 class="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 font-display">Bharatiya Nyaya Sanhita Research Assistant</h2>
+            <p class="text-xs uppercase tracking-widest text-amber-700 font-semibold">Statutory Intelligence & Criminal Procedure</p>
+          </div>
+          <p class="text-sm text-slate-600 max-w-xl mx-auto leading-relaxed">
+            Query across substantive criminal law (<strong class="text-amber-800 font-semibold">BNS, 2023</strong>) and procedural codes (<strong class="text-sky-800 font-semibold">BNSS, 2023</strong>). Every response is strictly grounded with Gazette citations and source inspectability.
+          </p>
+
+          <!-- BENCHMARK PROMPT PILLS -->
+          <div class="pt-3 max-w-2xl mx-auto text-left">
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-3 text-center">Suggested Statutory Enquiries</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs">
+              <button onclick="setQuery('How does the BNS define theft?')" class="p-3 bg-white hover:bg-slate-50/80 border border-slate-200/90 hover:border-amber-400/80 rounded-xl text-slate-700 transition text-left flex items-start space-x-2.5 group shadow-xs hover:shadow-sm">
+                <span class="text-amber-700 font-mono text-[11px] bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 group-hover:border-amber-300 font-medium">§303</span>
+                <span class="group-hover:text-slate-900 transition font-medium">How does the BNS define theft?</span>
+              </button>
+              <button onclick="setQuery('Explain how culpable homicide differs from murder, and cite the relevant sections.')" class="p-3 bg-white hover:bg-slate-50/80 border border-slate-200/90 hover:border-amber-400/80 rounded-xl text-slate-700 transition text-left flex items-start space-x-2.5 group shadow-xs hover:shadow-sm">
+                <span class="text-amber-700 font-mono text-[11px] bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 group-hover:border-amber-300 font-medium">§100/101</span>
+                <span class="group-hover:text-slate-900 transition font-medium">Culpable homicide vs Murder comparison</span>
+              </button>
+              <button onclick="setQuery('What is the distinction between robbery and dacoity?')" class="p-3 bg-white hover:bg-slate-50/80 border border-slate-200/90 hover:border-amber-400/80 rounded-xl text-slate-700 transition text-left flex items-start space-x-2.5 group shadow-xs hover:shadow-sm">
+                <span class="text-amber-700 font-mono text-[11px] bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 group-hover:border-amber-300 font-medium">§309/310</span>
+                <span class="group-hover:text-slate-900 transition font-medium">Distinction between robbery and dacoity</span>
+              </button>
+              <button onclick="setQuery('Under the BNSS, which section covers information in cognizable cases?')" class="p-3 bg-white hover:bg-slate-50/80 border border-slate-200/90 hover:border-sky-400/80 rounded-xl text-slate-700 transition text-left flex items-start space-x-2.5 group shadow-xs hover:shadow-sm">
+                <span class="text-sky-700 font-mono text-[11px] bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200 group-hover:border-sky-300 font-medium">BNSS §173</span>
+                <span class="group-hover:text-slate-900 transition font-medium">Information in cognizable cases (FIR)</span>
+              </button>
+              <button onclick="setQuery('What does the BNS say about acts done by several people in furtherance of common intention?')" class="p-3 bg-white hover:bg-slate-50/80 border border-slate-200/90 hover:border-amber-400/80 rounded-xl text-slate-700 transition text-left flex items-start space-x-2.5 group shadow-xs hover:shadow-sm">
+                <span class="text-amber-700 font-mono text-[11px] bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 group-hover:border-amber-300 font-medium">§3</span>
+                <span class="group-hover:text-slate-900 transition font-medium">Common intention across multiple persons</span>
+              </button>
+              <button onclick="setQuery('What is the exact procedure for filing an online appeal under the BNS?')" class="p-3 bg-white hover:bg-slate-50/80 border border-slate-200/90 hover:border-rose-400/80 rounded-xl text-slate-700 transition text-left flex items-start space-x-2.5 group shadow-xs hover:shadow-sm">
+                <span class="text-rose-700 font-mono text-[11px] bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 group-hover:border-rose-300 font-medium">REFUSAL</span>
+                <span class="group-hover:text-slate-900 transition font-medium">Online appeal procedure (Hallucination Test)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- INPUT AREA BAR -->
+      <div class="border-t border-slate-200/80 bg-white/85 backdrop-blur-md p-4 shadow-xs">
+        <div class="max-w-4xl mx-auto space-y-2.5">
+          
+          <!-- Filters & Helpers Row -->
+          <div class="flex items-center justify-between text-xs text-slate-500 px-1">
+            <div class="flex items-center space-x-2.5">
+              <span class="text-slate-400 text-[11px] uppercase tracking-wider font-semibold">Scope:</span>
+              <div class="inline-flex rounded-lg bg-slate-100 p-0.5 border border-slate-200/80">
+                <button type="button" onclick="setActFilter('ALL')" id="filterALL" class="px-2.5 py-1 rounded-md text-xs font-semibold bg-white text-slate-900 border border-slate-200/80 shadow-xs transition">All Statutes</button>
+                <button type="button" onclick="setActFilter('BNS')" id="filterBNS" class="px-2.5 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-900 transition">BNS (Offences)</button>
+                <button type="button" onclick="setActFilter('BNSS')" id="filterBNSS" class="px-2.5 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-900 transition">BNSS (Procedure)</button>
+              </div>
+            </div>
+            <button onclick="clearChat()" class="text-slate-400 hover:text-amber-700 transition text-xs flex items-center space-x-1 font-medium">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              <span>Clear dialogue</span>
+            </button>
+          </div>
+
+          <!-- Prompt Form -->
+          <form id="chatForm" onsubmit="handleSend(event)" class="relative flex items-end bg-white border border-slate-200/90 rounded-2xl shadow-sm focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 transition-all">
+            <textarea 
+              id="queryInput" 
+              rows="1" 
+              placeholder="Ask a legal research question across Bharatiya Nyaya Sanhita (BNS) & BNSS..."
+              class="w-full bg-transparent px-4 py-3.5 text-sm text-slate-900 placeholder-slate-400 resize-none focus:outline-none max-h-32"
+              onkeydown="handleKeyDown(event)"
+            ></textarea>
+            <div class="p-2">
+              <button 
+                type="submit" 
+                id="sendBtn"
+                class="h-9 w-9 bg-gradient-to-tr from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl flex items-center justify-center transition shadow-md shadow-amber-500/20 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                title="Send Enquiry"
+              >
+                <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+              </button>
+            </div>
+          </form>
+          <p class="text-[11px] text-center text-slate-400">
+            Strictly grounded legal citations generated over official Gazette notifications via pgvector. Always verify against primary legal records.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SIDE STATUTE INSPECTOR DRAWER -->
+    <div id="inspectorDrawer" class="hidden w-96 border-l border-slate-200 bg-white/95 backdrop-blur-md flex-col z-30 transition duration-200 shadow-xl">
+      <div class="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
+        <div class="flex items-center space-x-2">
+          <span class="text-xs bg-amber-50 text-amber-800 border border-amber-200 font-mono font-semibold px-2 py-0.5 rounded" id="drawerActCode">BNS</span>
+          <h3 class="text-sm font-semibold text-slate-900 truncate font-display" id="drawerSectionHeading">Section Inspector</h3>
+        </div>
+        <button onclick="closeInspector()" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg hover:bg-slate-100 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div class="p-4 overflow-y-auto space-y-4 flex-1 text-xs">
+        <div>
+          <span class="text-[10px] font-semibold text-amber-700/80 uppercase tracking-widest">Act Title</span>
+          <p class="text-slate-800 mt-0.5 font-medium" id="drawerActName">-</p>
+        </div>
+        <div>
+          <span class="text-[10px] font-semibold text-amber-700/80 uppercase tracking-widest">Section & Marginal Note</span>
+          <p class="text-amber-800 font-bold text-sm mt-0.5" id="drawerSectionTitle">-</p>
+        </div>
+        <div>
+          <span class="text-[10px] font-semibold text-amber-700/80 uppercase tracking-widest">PDF Gazette Record</span>
+          <p class="text-slate-600 mt-0.5 font-mono text-[11px]" id="drawerPages">-</p>
+        </div>
+        <div class="pt-2 border-t border-slate-200">
+          <span class="text-[10px] font-semibold text-amber-700/80 uppercase tracking-widest">Verified Statutory Text</span>
+          <div class="mt-2 bg-[#faf9f5] p-4 rounded-xl border border-[#e7e5e4] text-[#1c1917] leading-relaxed font-serif whitespace-pre-wrap text-[12.5px] shadow-xs" id="drawerText">
+            -
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- CORPUS MANAGEMENT MODAL -->
+  <div id="ingestModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <h3 class="text-base font-bold text-slate-900 font-display">Corpus & Document Ingestion</h3>
+        <button onclick="closeIngestModal()" class="text-slate-400 hover:text-slate-700 text-lg">✕</button>
+      </div>
+      
+      <!-- Quick Sample Bootstrap -->
+      <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+        <div class="flex items-center justify-between">
+          <div>
+            <h4 class="text-xs font-semibold text-slate-800">Preloaded Statute Sources</h4>
+            <p class="text-[11px] text-slate-500">Index the official BNS and BNSS Gazette PDFs from <code class="text-amber-700 font-medium">data/sources/</code>.</p>
+          </div>
+          <button onclick="bootstrapSamples()" id="bootstrapBtn" class="text-xs bg-gradient-to-tr from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold px-4 py-2 rounded-lg transition whitespace-nowrap shadow-md shadow-amber-500/20">
+            One-Click Index
+          </button>
+        </div>
+        <div id="bootstrapStatus" class="text-xs text-slate-500 hidden pt-1"></div>
+      </div>
+
+      <!-- Custom Upload Form -->
+      <form id="uploadForm" onsubmit="handleUpload(event)" class="space-y-4">
+        <label class="block text-xs font-medium text-slate-700">Or Upload Additional Statute PDFs</label>
+        <div class="border-2 border-dashed border-slate-300 hover:border-amber-400 rounded-xl p-6 text-center cursor-pointer transition bg-slate-50/50">
+          <input type="file" id="pdfFileInput" multiple accept=".pdf" class="hidden" onchange="updateFileCount()">
+          <label for="pdfFileInput" class="cursor-pointer block space-y-2">
+            <svg class="w-8 h-8 text-amber-600/70 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <span class="text-xs text-slate-600 block" id="fileCountLabel">Click to select PDF files (max 45MB each)</span>
+          </label>
+        </div>
+        <button type="submit" id="uploadBtn" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold py-2.5 rounded-xl border border-slate-200 transition">
+          Upload & Parse Chunks
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- BENCHMARK EVAL MODAL -->
+  <div id="evalModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-2xl max-w-3xl w-full p-6 space-y-5 shadow-2xl max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div>
+          <h3 class="text-base font-bold text-slate-900 font-display">Automated Legal Benchmark Suite</h3>
+          <p class="text-xs text-slate-500">Tests 7 key evaluation cases from <code class="text-amber-700 font-medium">evals/questions.json</code></p>
+        </div>
+        <button onclick="closeEvalModal()" class="text-slate-400 hover:text-slate-700 text-lg">✕</button>
+      </div>
+
+      <!-- Action & Summary -->
+      <div class="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-200">
+        <div id="evalSummaryText" class="text-xs text-slate-600">
+          Click "Run Evaluation Suite" to benchmark section recall, multi-section accuracy, and hallucination refusal.
+        </div>
+        <button onclick="runBenchmarkEvals()" id="runEvalBtn" class="text-xs bg-gradient-to-tr from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold px-4 py-2 rounded-lg transition whitespace-nowrap shadow-md shadow-amber-500/20">
+          Run Evaluation Suite
+        </button>
+      </div>
+
+      <!-- Results Table -->
+      <div class="flex-1 overflow-y-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="border-b border-slate-200 text-slate-500 font-semibold bg-slate-50/70">
+              <th class="py-2.5 px-3">Test ID</th>
+              <th class="py-2.5 px-3">Question</th>
+              <th class="py-2.5 px-3">Expected §</th>
+              <th class="py-2.5 px-3">Status</th>
+              <th class="py-2.5 px-3 text-right">Latency</th>
+            </tr>
+          </thead>
+          <tbody id="evalTableBody" class="divide-y divide-slate-100 text-slate-700">
+            <tr>
+              <td colspan="5" class="py-8 text-center text-slate-400">No test results yet. Run the benchmark above.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

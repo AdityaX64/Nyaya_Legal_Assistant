@@ -1,0 +1,29 @@
+# Build & compiled outputs
+target/
+*.class
+
+# Environment & local secret configs (Never commit actual credentials)
+.env
+.env.local
+.env.*.local
+application-local.yml
+application-local.properties
+
+# IDEs & Developer Tooling
+.idea/
+*.iml
+.vscode/
+*.sublime-*
+.DS_Store
+Thumbs.db
+
+# Logs & Temporary Files
+*.log
+logs/
+temp/
+tmp/
+
+# Whitelist official preloaded Gazette PDFs so evaluator can test out-of-the-box
+!data/
+!data/sources/
+!data/sources/*.pdf

@@ -1,0 +1,9 @@
+[
+  {"id":"theft_definition","question":"How does the BNS define theft?","expected_sections":["303"]},
+  {"id":"criminal_intimidation","question":"What is criminal intimidation and what punishment may apply?","expected_sections":["351"]},
+  {"id":"murder_vs_culpable_homicide","question":"Explain how culpable homicide differs from murder, and cite the relevant sections.","expected_sections":["100","101"]},
+  {"id":"common_intention","question":"What does the BNS say about acts done by several people in furtherance of common intention?","expected_sections":["3"]},
+  {"id":"robbery_dacoity","question":"What is the distinction between robbery and dacoity?","expected_sections":["309","310"]},
+  {"id":"cognizable_information","question":"Under the BNSS, which section covers information in cognizable cases?","expected_act":"BNSS","expected_sections":["173"]},
+  {"id":"unknown_answer","question":"What is the exact procedure for filing an online appeal under the BNS?","expected_sections":[],"expected_behavior":"The response should say that the indexed BNS text does not establish this procedural detail."}
+]
