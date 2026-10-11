@@ -104,12 +104,22 @@ Nyaya includes an automated benchmark evaluation runner (`EvalService` & `/api/e
 
 Nyaya serves a clean, responsive single-page web app directly from Spring Boot (`http://localhost:8080/`) with **zero external npm/node dependencies**:
 
-* **Live Streaming Chat**: Real-time token streaming with sub-second Time-To-First-Token.
-* **Interactive Citation Badges**: Click any `[BNS Sec. 303]` citation to open the slide-over **Statute Inspector Drawer** displaying the exact verified Gazette text and page number.
-* **One-Click Benchmark Chips**: Instant testing of core evaluation queries.
-* **Statute Filter Toggle**: Filter queries to *All Statutes*, *BNS (Offences)*, or *BNSS (Procedure)*.
-* **Corpus Dashboard**: One-click indexer for the preloaded BNS & BNSS Gazette PDFs.
-* **Live Eval Benchmark Modal**: Click "Run Evals" in the UI to watch the evaluation suite execute live!
+* **Aesthetic Legal Tech Design**: Clean light canvas, authoritative Cinzel serif headers, and high-contrast typography.
+* **Live Streaming Chat**: Real-time token synthesis with sub-second Time-To-First-Token.
+* **Interactive Citation Badges**: Click any citation to inspect verified Gazette text and page numbers in the slide-over **Statute Inspector Drawer**.
+* **One-Click Benchmark Chips**: Instant testing of core statutory evaluation queries (§303, §100/101, §309/310, BNSS §173).
+* **Statute Filter Scope**: Filter queries across *All Statutes*, *BNS (Substantive Offences)*, or *BNSS (Criminal Procedure)*.
+* **Live Eval Benchmark Modal**: Click "Run Evals" in the navigation bar to watch the automated legal benchmark suite execute live!
+
+<div align="center">
+  <img src="docs/images/nyaya-hero-landing.png" alt="Nyaya Legal Research Assistant Landing UI" width="900" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 20px;"/>
+  <p><em>Nyaya Legal Research Assistant — Interactive Landing & Statutory Inquiry Pills</em></p>
+</div>
+
+<div align="center" style="margin-top: 24px;">
+  <img src="docs/images/nyaya-chat-interface.png" alt="Nyaya Statutory Research Chat Interface" width="900" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 20px;"/>
+  <p><em>Statutory Analysis & Synthesis — Grounded BNS Legal Offence Research</em></p>
+</div>
 
 ---
 
