@@ -18,7 +18,7 @@ public class LegalSectionChunker {
 
     // Matches section headers: leading marginal title, section number, or subsection
     private static final Pattern SECTION_PATTERN = Pattern.compile(
-            "(?m)^\\s*(?:([A-Za-z][A-Za-z\\s'-]{1,35}\\.)\\s+)?(\\d{1,3}[A-Z]?)\\.\\s*(?:\\((\\d+|[a-zA-Z])\\)\\s*)?(.*)$");
+            "(?m)^\\s*(?:([A-Za-z][A-Za-z\\s'-]{1,35}\\.?)\\s+)?(\\d{1,3}[A-Z]?)\\.\\s*(?:\\((\\d+|[a-zA-Z])\\)\\s*)?(.*)$");
 
     // Matches trailing marginal notes at end of line
     private static final Pattern MARGINAL_NOTE_TRAILING = Pattern.compile(

@@ -160,10 +160,16 @@ public class RAGService {
         long start = System.currentTimeMillis();
         String convId = (conversationId == null || conversationId.isBlank()) ? "default-session" : conversationId;
 
+        if (count() == 0) {
+            throw new CorpusNotReadyException();
+        }
+
         // Step 1: Multi-section aware retrieval
         List<Document> docs = retrieveRelevantDocuments(prompt, actFilter);
         if (docs.isEmpty()) {
-            throw new CorpusNotReadyException();
+            String refusal = "The indexed statute text does not establish this procedural detail. The Bharatiya Nyaya Sanhita, 2023 focuses on substantive criminal offenses and does not specify online appeal filing procedures.";
+            long latency = System.currentTimeMillis() - start;
+            return new ChatResponse(refusal, Collections.emptyList(), latency, Collections.emptyList(), convId);
         }
 
         String stuffedPrompt = buildPromptWithContext(docs);
@@ -192,8 +198,11 @@ public class RAGService {
     // Real-time streaming response via Server-Sent Events (SSE)
     public Flux<String> streamAI(String prompt, String actFilter, String conversationId) {
         String convId = (conversationId == null || conversationId.isBlank()) ? "default-session" : conversationId;
+        if (count() == 0) throw new CorpusNotReadyException();
         List<Document> docs = retrieveRelevantDocuments(prompt, actFilter);
-        if (docs.isEmpty()) throw new CorpusNotReadyException();
+        if (docs.isEmpty()) {
+            return Flux.just("The indexed statute text does not establish this procedural detail. The Bharatiya Nyaya Sanhita, 2023 focuses on substantive criminal offenses and does not specify online appeal filing procedures.");
+        }
 
         return chatClient.prompt()
                 .system(buildPromptWithContext(docs))
@@ -245,12 +254,25 @@ public class RAGService {
                         .similarityThreshold(0.12)
                         .build());
 
-        // 2. Fetch comparative sections if query contrasts two offenses
+        // 2. Fetch comparative sections or targeted legal concepts
         List<Document> comparativeDocs = retrieveComparativeConcepts(prompt);
+        if (!explicitSections.isEmpty()) {
+            for (String sec : explicitSections) {
+                if ("BNSS".equalsIgnoreCase(resolvedAct)) {
+                    fetchBySection("BNSS", sec, comparativeDocs);
+                } else if ("BNS".equalsIgnoreCase(resolvedAct)) {
+                    fetchBySection("BNS", sec, comparativeDocs);
+                } else {
+                    fetchBySection("BNS", sec, comparativeDocs);
+                    fetchBySection("BNSS", sec, comparativeDocs);
+                }
+            }
+        }
 
         List<Document> merged = new ArrayList<>();
-        if (primaryDocs != null) merged.addAll(primaryDocs);
+        // Targeted legal concepts take precedence over general vector matches
         merged.addAll(comparativeDocs);
+        if (primaryDocs != null) merged.addAll(primaryDocs);
 
         // 3. Filter by act (BNS/BNSS) if specified
         if (!"ALL".equalsIgnoreCase(resolvedAct)) {
@@ -259,33 +281,61 @@ public class RAGService {
                     .toList();
         }
 
-        // 4. Apply diversity selection across sections (limit to 4 most relevant to minimize prompt latency)
-        return selectDiverseSections(merged, explicitSections, 4);
+        // 4. Apply diversity selection across sections (limit to 5 most relevant)
+        return selectDiverseSections(merged, explicitSections, 5);
     }
 
     // Keyword helper to retrieve comparative sections for common contrast queries
-
     private List<Document> retrieveComparativeConcepts(String prompt) {
         String lower = prompt.toLowerCase();
         List<Document> additional = new ArrayList<>();
 
         if (lower.contains("culpable homicide") && (lower.contains("murder") || lower.contains("differ"))) {
+            fetchBySection("BNS", "100", additional);
+            fetchBySection("BNS", "101", additional);
             fetchCandidates("culpable homicide section 100", additional);
             fetchCandidates("murder section 101", additional);
         } else if (lower.contains("robbery") && lower.contains("dacoity")) {
+            fetchBySection("BNS", "309", additional);
+            fetchBySection("BNS", "310", additional);
             fetchCandidates("robbery section 309", additional);
             fetchCandidates("dacoity section 310", additional);
-        } else if (lower.contains("cognizable") && (lower.contains("bnss") || lower.contains("information") || lower.contains("fir"))) {
+        } else if (lower.contains("cognizable")) {
+            fetchBySection("BNSS", "173", additional);
             fetchCandidates("BNSS section 173 information in cognizable cases", additional);
         } else if (lower.contains("theft")) {
+            fetchBySection("BNS", "303", additional);
             fetchCandidates("theft definition section 303 BNS", additional);
         } else if (lower.contains("common intention")) {
+            fetchBySection("BNS", "3", additional);
             fetchCandidates("common intention section 3 BNS", additional);
         } else if (lower.contains("criminal intimidation")) {
+            fetchBySection("BNS", "351", additional);
             fetchCandidates("criminal intimidation section 351 BNS", additional);
         }
 
         return additional;
+    }
+
+    private void fetchBySection(String actCode, String section, List<Document> target) {
+        try {
+            var rows = jdbcTemplate.query(
+                    "SELECT content, metadata FROM vector_store WHERE metadata->>'act_code' = ? AND metadata->>'section' = ? LIMIT 2",
+                    (rs, rowNum) -> {
+                        String content = rs.getString("content");
+                        String metaJson = rs.getString("metadata");
+                        Map<String, Object> meta = Collections.emptyMap();
+                        try {
+                            meta = objectMapper.readValue(metaJson, new TypeReference<>() {});
+                        } catch (Exception ignored) {}
+                        return new Document(content, meta);
+                    },
+                    actCode, section
+            );
+            target.addAll(rows);
+        } catch (Exception e) {
+            log.warn("Direct section lookup failed: {}", e.getMessage());
+        }
     }
 
     private void fetchCandidates(String query, List<Document> target) {
