@@ -6,9 +6,9 @@ spring:
   application:
     name: nyaya-bns-rag
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5433}/${POSTGRES_DB:nyaya}}
-    username: ${POSTGRES_USER:nyaya}
-    password: ${POSTGRES_PASSWORD:nyaya_dev_only}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5433}/${POSTGRES_DB:nyaya_db}}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
