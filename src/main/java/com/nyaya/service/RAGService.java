@@ -46,6 +46,17 @@ public class RAGService {
     // Pattern to extract cited section numbers from model outputs (e.g. "[BNS Section 303]")
     private static final Pattern CITED_SECTION_OUTPUT = Pattern.compile("\\[(?:BNS|BNSS)?\\s*(?:Section|Sec\\.?)\\s*(\\d{1,3}[A-Z]?)\\]", Pattern.CASE_INSENSITIVE);
 
+    // NLP patterns to dynamically detect comparative legal intent across any offenses
+    private static final Pattern COMPARATIVE_DIFFERS = Pattern.compile(
+            "(?i)(?:how\\s+)?([a-z\\s]{3,40})\\s+differs?\\s+from\\s+([a-z\\s]{3,40})"
+    );
+    private static final Pattern COMPARATIVE_BETWEEN = Pattern.compile(
+            "(?i)(?:distinction|difference)\\s+between\\s+([a-z\\s]{3,40})\\s+and\\s+([a-z\\s]{3,40})"
+    );
+    private static final Pattern COMPARATIVE_VS = Pattern.compile(
+            "(?i)([a-z\\s]{3,40})\\s+(?:vs\\.?|versus)\\s+([a-z\\s]{3,40})"
+    );
+
     private final ChatClient chatClient;
     private final VectorStore vectorStore;
     private final LegalSectionChunker legalSectionChunker;
@@ -285,36 +296,33 @@ public class RAGService {
         return selectDiverseSections(merged, explicitSections, 5);
     }
 
-    // Keyword helper to retrieve comparative sections for common contrast queries
+    // Dynamic Sub-Query Decomposition for comparative legal questions
     private List<Document> retrieveComparativeConcepts(String prompt) {
         String lower = prompt.toLowerCase();
         List<Document> additional = new ArrayList<>();
 
-        if (lower.contains("culpable homicide") && (lower.contains("murder") || lower.contains("differ"))) {
-            fetchBySection("BNS", "100", additional);
-            fetchBySection("BNS", "101", additional);
-            fetchCandidates("culpable homicide section 100", additional);
-            fetchCandidates("murder section 101", additional);
-        } else if (lower.contains("robbery") && lower.contains("dacoity")) {
-            fetchBySection("BNS", "309", additional);
-            fetchBySection("BNS", "310", additional);
-            fetchCandidates("robbery section 309", additional);
-            fetchCandidates("dacoity section 310", additional);
-        } else if (lower.contains("cognizable")) {
-            fetchBySection("BNSS", "173", additional);
-            fetchCandidates("BNSS section 173 information in cognizable cases", additional);
-        } else if (lower.contains("theft")) {
-            fetchBySection("BNS", "303", additional);
-            fetchCandidates("theft definition section 303 BNS", additional);
-        } else if (lower.contains("common intention")) {
-            fetchBySection("BNS", "3", additional);
-            fetchCandidates("common intention section 3 BNS", additional);
-        } else if (lower.contains("criminal intimidation")) {
-            fetchBySection("BNS", "351", additional);
-            fetchCandidates("criminal intimidation section 351 BNS", additional);
+        Matcher m = COMPARATIVE_DIFFERS.matcher(lower);
+        if (!m.find()) m = COMPARATIVE_BETWEEN.matcher(lower);
+        if (!m.find()) m = COMPARATIVE_VS.matcher(lower);
+
+        if (m.find()) {
+            String conceptA = cleanConceptTerm(m.group(1));
+            String conceptB = cleanConceptTerm(m.group(2));
+            if (!conceptA.isBlank() && !conceptB.isBlank()) {
+                fetchCandidates(conceptA, additional);
+                fetchCandidates(conceptB, additional);
+            }
         }
 
         return additional;
+    }
+
+    private String cleanConceptTerm(String raw) {
+        if (raw == null) return "";
+        return raw.replaceAll("(?i)\\b(and|or|in|under|the|of|cite|relevant|sections?|what|is|explain)\\b", " ")
+                .replaceAll("[^a-zA-Z\\s]", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
     }
 
     private void fetchBySection(String actCode, String section, List<Document> target) {
